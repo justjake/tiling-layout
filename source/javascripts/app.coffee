@@ -8,8 +8,17 @@
 
 window.onload = ->
 
-    W = 1980
-    H = 1050
+    GOLDEN = 1.62
+
+    H = 600
+    W = H * GOLDEN
+
+    class ActualRatioContainer extends Container
+        ratioOf: (child) ->
+            child.ratio
+
+    window.C = C = ActualRatioContainer
+
 
     select_random = ->
         return Math.random() < 0.5
@@ -51,31 +60,33 @@ window.onload = ->
     create_tree = (dir_selector, count) ->
         # base case: return a plain container
         if count == 0
-            return new Container(400, 400)
+            return new C(400, 400)
 
         # reverse the direction
-        root = new Container(W, H, dir_selector())
+        root = new C(W, H, dir_selector())
 
-        empty_child = new Container(400, 400)
+        empty_child = new C(400, 400)
 
         # sub-tree
         full_child = create_tree(dir_selector, count - 1)
 
         # add children
-        root.addChild(empty_child)
-        root.addChild(full_child)
+        root.addLast(empty_child)
+        root.addLast(full_child)
 
         return root
 
-    layout_tree = (container) ->
+    window.layout_tree = layout_tree = (container) ->
         container.layout()
-        if container.children.length
-            for c in container.children
+        if container.managed_windows.length
+            for c in container.managed_windows
                 layout_tree(c)
 
-    root = super_tree(0)
+    window.root = root =  create_tree(select_alternate(true), 15)
     layout_tree(root)
     console.log(root)
 
     # break abstractions
     document.body.appendChild(root.native)
+
+
