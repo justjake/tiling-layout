@@ -80,7 +80,7 @@ window.onload = ->
                 layout_tree(c)
 
     window.root = root =  create_tree(select_alternate(true), 15)
-    layout_tree(root)
+    root.layoutRecursive(true)
     console.log(root)
 
     # break abstractions

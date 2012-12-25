@@ -46,6 +46,7 @@ class Container extends Rect
         @seams = []
 
         @native.className += " horiz" if @format
+        @layout_needed = false
 
     # given the number of children we have
     # and our spacing, how many pixels are in
@@ -82,6 +83,8 @@ class Container extends Rect
     # lay out all children based on our HOR/VERT
     # and dimensions
     layout: ->
+        # we will get layout, so unflag us for future layout runs for now
+        @needs_layout = false
         # what set of properties should we use?
         if @format is VERTICAL
             console.group('Vertical layout')
@@ -121,6 +124,14 @@ class Container extends Rect
 
         # lay out seams
         @layoutSeams()
+
+
+    # lay out this item, then lay out child items that need it
+    layoutRecursive: (layout_all = false) ->
+        @layout()
+        for w in @managed_windows
+            w.layoutRecursive(layout_all) if w.needs_layout or layout_all
+
 
     # Add a managed window, which is part of layout stuff
     addWindow: (win) ->
@@ -210,11 +221,14 @@ class Container extends Rect
 
     # do actions, then run general cleanup
     # includeing recursive layout
-    # and re-layout everything
+    # and re-layout everything that needs it
     transact: (actions) ->
+        @needs_layout = true
         actions.call(this)
-        @cullSeams()
-        @layout()
+        if @parent
+            @parent.layoutRecursive()
+        else
+            @layoutRecursive()
 
 # export
 this.Container = Container

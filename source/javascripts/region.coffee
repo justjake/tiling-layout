@@ -19,6 +19,10 @@ class Region extends Container
     BEFORE = true
     AFTER  = false
 
+    mark_for_layout = (regs...) ->
+        for r in regs
+            r.needs_layout = true
+
     get = (obj, name, params...) ->
         obj["get#{name}"].apply(obj, params)
     set = (obj, name, params...) ->
@@ -63,20 +67,17 @@ class Region extends Container
         idx = @managed_windows.length + idx if idx < 0
         existant_window = @managed_windows[idx]
 
+
         # replace window with new region
         @replaceAtIndex(op_region, idx)
         
         # set up new region
-        op_region.addNewWindowAtIndex(existant_window, 0)
-        op_region.addNewWindowAtIndex(new_win, 0, side_for_new)
+        op_region.transact ->
+            mark_for_layout(existant_window, new_win)
+            @addNewWindowAtIndex(existant_window, 0)
+            @addNewWindowAtIndex(new_win, 0, side_for_new)
 
 
-    # do actions, then run general cleanup
-    # and re-layout everything
-    transact: (actions) ->
-        actions.call(this)
-        @cullSeams()
-        @layout()
 
 
 
