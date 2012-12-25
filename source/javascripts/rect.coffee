@@ -14,16 +14,19 @@
 
 class Rect
 
+    NO_PARENT = null
+
     # first: helper functions for pixesls
     to_pixels = (n) -> n + "px"
     from_pixels = (px) -> 
         parseInt(px[0..-3], 10)
 
-    constructor: (width, height) ->
+    constructor: (width = 0, height = 0) ->
         el = document.createElement('div')
         el.className = 'rect'
         @native = el
         @children = []
+        @parent = NO_PARENT
 
         # apply sizing
         @setWidth width
@@ -63,7 +66,16 @@ class Rect
     addChild: (rect) ->
         @children.push(rect)
         @native.appendChild(rect.native)
+        rect.parent = this
 
-        getChildren: -> @children
+    removeChild: (rect) ->
+        idx = @children.indexOf(rect)
+        if idx != -1
+            delete @children[idx]
+            @native.removeChild(rect.native)
+            rect.parent = NO_PARENT
+        else
+            throw "InvalidRemoval: #{this} has no child #{rect}"
+
 
 this.used_namespace.Rect = Rect

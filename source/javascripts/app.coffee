@@ -4,7 +4,7 @@
 
 #= require "util"
 #= require "rect"
-#= require "container"
+#= require "region"
 
 window.onload = ->
 
@@ -13,11 +13,8 @@ window.onload = ->
     H = 600
     W = H * GOLDEN
 
-    class ActualRatioContainer extends Container
-        ratioOf: (child) ->
-            child.ratio
 
-    window.C = C = ActualRatioContainer
+    window.C = C = Region
 
 
     select_random = ->
