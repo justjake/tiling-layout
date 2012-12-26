@@ -130,7 +130,7 @@ class Container extends Rect
     layoutRecursive: (layout_all = false) ->
         @layout()
         for w in @managed_windows
-            w.layoutRecursive(layout_all) if w.needs_layout or layout_all
+            w.layoutRecursive(true) if w.needs_layout or layout_all
 
 
     # Add a managed window, which is part of layout stuff
